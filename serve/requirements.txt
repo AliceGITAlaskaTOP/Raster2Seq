@@ -1,0 +1,26 @@
+# Raster2Seq floorplan recognition service (CPU). torch / torchvision are
+# installed separately from the CPU wheel index — see serve/Dockerfile.
+numpy==1.26.4
+opencv-python-headless==4.11.0.86
+pillow
+shapely>=2.0
+scipy
+scikit-image
+matplotlib==3.8.4
+plotly
+huggingface_hub
+timm==0.5.4
+fairscale==0.4.6
+fvcore
+iopath
+omegaconf
+hydra-core
+cloudpickle==2.1.0
+pycocotools
+descartes
+webcolors
+tabulate
+termcolor
+yacs
+pyyaml
+tqdm

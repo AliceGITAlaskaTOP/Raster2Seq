@@ -19,6 +19,7 @@ import torch.nn.functional as F
 from torch.nn.init import xavier_uniform_, constant_
 
 from ..functions import MSDeformAttnFunction
+from ..functions.ms_deform_attn_func import MSDA, ms_deform_attn_core_pytorch
 
 
 def _is_power_of_2(n):
@@ -121,7 +122,10 @@ class MSDeformAttn(nn.Module):
         else:
             offset_normalizer = torch.stack([input_spatial_shapes[..., 1], input_spatial_shapes[..., 0]], -1)
             sampling_locations = sampling_offsets / offset_normalizer[None, None, None, :, None, :]
-        output = MSDeformAttnFunction.apply(
-            value, input_spatial_shapes, input_level_start_index, sampling_locations, attention_weights, self.im2col_step)
+        if MSDA is not None and value.is_cuda:
+            output = MSDeformAttnFunction.apply(
+                value, input_spatial_shapes, input_level_start_index, sampling_locations, attention_weights, self.im2col_step)
+        else:
+            output = ms_deform_attn_core_pytorch(value, input_spatial_shapes, sampling_locations, attention_weights)
         output = self.output_proj(output)
         return output

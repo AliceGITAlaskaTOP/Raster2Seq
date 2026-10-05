@@ -90,10 +90,12 @@ class BackboneBase(nn.Module):
 class Backbone(BackboneBase):
     """ResNet backbone with frozen BatchNorm."""
 
-    def __init__(self, name: str, train_backbone: bool, return_interm_layers: bool, dilation: bool, input_channels=1):
+    def __init__(
+        self, name: str, train_backbone: bool, return_interm_layers: bool, dilation: bool, input_channels=1, pretrained=True
+    ):
         norm_layer = FrozenBatchNorm2d
         backbone = getattr(torchvision.models, name)(
-            replace_stride_with_dilation=[False, False, dilation], pretrained=True, norm_layer=norm_layer
+            replace_stride_with_dilation=[False, False, dilation], pretrained=pretrained, norm_layer=norm_layer
         )
         # modify the first layer to compatible with single channel input
         backbone.conv1 = nn.Conv2d(input_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
@@ -128,7 +130,13 @@ def build_backbone(args):
     train_backbone = args.lr_backbone > 0
     return_interm_layers = args.num_feature_levels > 1
     backbone = Backbone(
-        args.backbone, train_backbone, return_interm_layers, args.dilation, input_channels=args.input_channels
+        args.backbone,
+        train_backbone,
+        return_interm_layers,
+        args.dilation,
+        input_channels=args.input_channels,
+        # inference loads every weight from the checkpoint: ImageNet init is not needed
+        pretrained=getattr(args, "pretrained_backbone", True),
     )
     model = Joiner(backbone, position_embedding)
     return model
