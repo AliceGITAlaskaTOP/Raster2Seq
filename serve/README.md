@@ -9,8 +9,14 @@ docker compose.
 ```
 POST /recognize?name=<plan name>&ppm=<pixels per metre, optional>
      body: PNG / JPEG / WEBP bytes
+POST /build?name=<plan name>
+     body: a Plan drawn or edited by hand (JSON, metres: walls as centrelines,
+     doors/windows on walls, rooms) → {plan, svg, config, origin}
 GET  /health   → {"ready": true|false, "error": null|"…"}
 ```
+
+`/build` needs no model: the same writer turns a hand-drawn plan into the
+same format, so recognized and drawn floors look alike to Floorplan2Walkthru.
 
 `/recognize` answers:
 
